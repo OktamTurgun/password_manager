@@ -1,0 +1,38 @@
+# 🔧 Password Manager uchun kerakli kutubxonalar
+
+# Asosiy kutubxonalar (Python standart kutubxonalari)
+# json, os, random, string, base64, hashlib, secrets - standart kutubxonalar, alohida o'rnatish shart emas
+
+# Xavfsizlik uchun qo'shimcha kutubxonalar
+cryptography>=3.4.8  # Kuchli shifrlash uchun
+
+# Test uchun kutubxonalar
+pytest>=6.2.5
+pytest-cov>=2.12.1
+
+# Development uchun qo'shimcha kutubxonalar
+black>=21.7b0  # Kod formatlash
+flake8>=3.9.2  # Kod tekshirish
+mypy>=0.910    # Type checking
+
+# Logging va monitoring uchun
+colorlog>=6.6.0
+
+# CLI yaxshilash uchun
+click>=8.0.1
+rich>=10.12.0  # Chiroyli CLI output
+
+# Ma'lumotlar bazasi uchun (kelajakda)
+# sqlite3 - standart kutubxona
+# sqlalchemy>=1.4.23  # ORM uchun
+
+# Backup va export uchun
+# zipfile - standart kutubxona
+# csv - standart kutubxona
+# shutil - standart kutubxona
+# pathlib - standart kutubxona
+
+# Xavfsizlik uchun standart kutubxonalar:
+# - secrets: Kriptografik xavfsiz tasodifiy sonlar
+# - hashlib: Hash funksiyalari
+# - base64: Base64 kodlash 
