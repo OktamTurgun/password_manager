@@ -2,8 +2,10 @@
 
 import json
 import os
-import random
+import secrets
 import string
+from pathlib import Path
+from getpass import getpass
 
 # 📌 Parollar saqlanadigan fayl manzili
 DATA_FILE = "data/passwords.json"
@@ -18,9 +20,18 @@ def load_passwords():
 
 
 def save_passwords(passwords):
-    """💾 Parollarni JSON faylga saqlash"""
-    with open(DATA_FILE, 'w') as file:
-        json.dump(passwords, file, indent=4)
+    """📝 Parollarni JSON faylga saqlash"""
+    try:
+        # 📌 papkani yaratish
+        DATA_FILE.parent.mkdir(exist_ok=True)
+
+        # 📌 ma'lumotlarni saqlash
+        with open(DATA_FILE, 'w', encoding='utf-8') as file:
+            json.dump(passwords, file, indent=4, ensure_ascii=False)
+
+        print("✅ Parollar saqlandi")
+    except Exception as e:
+        print(f"❌ Xatolik: {e}")
 
 
 def generate_password(length=12, use_upper=True, use_lower=True, use_digits=True, use_special=True):
@@ -41,36 +52,28 @@ def generate_password(length=12, use_upper=True, use_lower=True, use_digits=True
         raise ValueError("Parol uzunligi kamida 8 bo'lishi kerak!")
 
     # 📌 ishlatiladigan belgilar to'plamini tuzamiz
-    chars = ''
+    char_sets = []
     if use_upper:
-        chars += string.ascii_uppercase
+        char_sets.append(string.ascii_uppercase)
     if use_lower:
-        chars += string.ascii_lowercase
+        char_sets.append(string.ascii_lowercase)
     if use_digits:
-        chars += string.digits
+        char_sets.append(string.digits)
     if use_special:
-        chars += "!@#$%^&*()_+-=[]{}"
+        char_sets.append("!@#$%^&*()_+-=[]{}")
 
-    # 📌 minimal talablarni bajarish uchun har bir toifadan kamida 1 ta belgini oldindan qo'shib ketamiz
+    # 📌 har bir toifadan belgi qo'shish
     password = []
-
-    # Har bir toifadan belgi qo'shish
-    if use_upper:
-        password.append(random.choice(string.ascii_uppercase))
-    if use_lower:
-        password.append(random.choice(string.ascii_lowercase))
-    if use_digits:
-        password.append(random.choice(string.digits))
-    if use_special:
-        password.append(random.choice("!@#$%^&*()_+-=[]{}"))
+    for char_set in char_sets:
+        password.append(secrets.choice(char_set))
 
     # 📌 qolgan belgilarni to'ldirish
+    all_chars = ''.join(char_sets)
     while len(password) < length:
-        password.append(random.choice(chars))
+        password.append(secrets.choice(all_chars))
 
-    # 📌 belgilarni aralashtirish — tartibni tasodifiylashtirish
-    random.shuffle(password)
-
+    # 📌 belgilarni aralashtirish
+    secrets.SystemRandom().shuffle(password)
     return ''.join(password)
 
 
@@ -82,7 +85,7 @@ def add_password():
     choice = input("Parolni o'zingiz kiritasizmi? (ha/yo'q): ").lower()
 
     if choice == 'ha':
-        password = input("Parol: ")
+        password = getpass("Parol: ")
     else:
         password = generate_password()
         print(f"Avtomatik yaratilgan parol: {password}")
@@ -131,7 +134,7 @@ def update_password():
 
     for p in passwords:
         if p['platform'] == platform and p['username'] == username:
-            p['password'] = input("Yangi parol: ")
+            p['password'] = getpass("Yangi parol: ")
             break
 
     save_passwords(passwords)

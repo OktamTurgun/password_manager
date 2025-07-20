@@ -1,55 +1,15 @@
-# 🚀 Yaxshilangan Password Manager - Asosiy dastur
+# 🔐 Password Manager - Enhanced Version
 
 import os
 import sys
 from pathlib import Path
+from utils.logger import setup_logger, log_action, log_error
+from utils.backup import create_backup, export_to_csv, import_from_csv
 
-# Konfiguratsiya va modullarni import qilish
-try:
-    from config import APP_NAME, APP_VERSION, DATA_DIR
-except ImportError:
-    # Agar config.py mavjud bo'lmasa, standart qiymatlar
-    APP_NAME = "Password Manager"
-    APP_VERSION = "1.0.0"
-    DATA_DIR = Path("data")
-
-try:
-    from utils.helpers import (
-        add_password, view_passwords, delete_password,
-        update_password, search_password
-    )
-except ImportError:
-    print("⚠️ utils.helpers moduli topilmadi. Asosiy funksiyalar ishlamaydi.")
-
-try:
-    from utils.backup import create_backup, export_to_csv, import_from_csv
-except ImportError:
-    print("⚠️ utils.backup moduli topilmadi. Backup funksiyalari ishlamaydi.")
-    # Standart funksiyalar
-
-    def create_backup():
-        print("❌ Backup funksiyasi mavjud emas")
-
-    def export_to_csv(filename):
-        print("❌ Export funksiyasi mavjud emas")
-
-    def import_from_csv(filename):
-        print("❌ Import funksiyasi mavjud emas")
-
-try:
-    from utils.logger import log_action, log_error, setup_logger
-except ImportError:
-    print("⚠️ utils.logger moduli topilmadi. Logging o'chirilgan.")
-    # Standart logging funksiyalari
-
-    def log_action(action, details=None):
-        pass
-
-    def log_error(error, context=None):
-        pass
-
-    def setup_logger():
-        pass
+# App sozlamalari
+APP_NAME = "Password Manager"
+APP_VERSION = "1.0.0"
+DATA_DIR = Path("data")
 
 
 def print_banner():
@@ -117,8 +77,12 @@ def settings_menu():
 
     if choice == "1":
         try:
-            os.startfile(DATA_DIR) if os.name == 'nt' else os.system(
-                "open " + str(DATA_DIR))
+            if os.name == 'nt':
+                os.startfile(DATA_DIR)
+            else:
+                # Xavfsizroq yo'l
+                import subprocess
+                subprocess.run(['xdg-open', str(DATA_DIR)], check=False)
             print("✅ Ma'lumotlar papkasi ochildi")
         except Exception:
             print("❌ Papka ochilmadi")
@@ -144,36 +108,22 @@ def settings_menu():
 
 def handle_password_operations(choice):
     """Parol operatsiyalarini boshqarish"""
-    if choice == "1":
+    operations = {
+        "1": ("add_password", "password_added"),
+        "2": ("view_passwords", "passwords_viewed"),
+        "3": ("delete_password", "password_deleted"),
+        "4": ("update_password", "password_updated"),
+        "5": ("search_password", "password_searched")
+    }
+
+    if choice in operations:
+        func_name, log_action_name = operations[choice]
         try:
-            add_password()
-            log_action("password_added")
-        except NameError:
-            print("❌ Parol qo'shish funksiyasi mavjud emas")
-    elif choice == "2":
-        try:
-            view_passwords()
-            log_action("passwords_viewed")
-        except NameError:
-            print("❌ Parollarni ko'rish funksiyasi mavjud emas")
-    elif choice == "3":
-        try:
-            delete_password()
-            log_action("password_deleted")
-        except NameError:
-            print("❌ Parolni o'chirish funksiyasi mavjud emas")
-    elif choice == "4":
-        try:
-            update_password()
-            log_action("password_updated")
-        except NameError:
-            print("❌ Parolni yangilash funksiyasi mavjud emas")
-    elif choice == "5":
-        try:
-            search_password()
-            log_action("password_searched")
-        except NameError:
-            print("❌ Parolni qidirish funksiyasi mavjud emas")
+            # Dinamik funksiya chaqirish
+            globals()[func_name]()
+            log_action(log_action_name)
+        except (NameError, KeyError):
+            print(f"❌ {func_name} funksiyasi mavjud emas")
 
 
 def handle_menu_choice(choice):

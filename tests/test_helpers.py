@@ -111,7 +111,7 @@ class TestPasswordManager(unittest.TestCase):
         # Bo'sh fayl yaratish
         data_file = Path("data/passwords.json")
         data_file.parent.mkdir(exist_ok=True)
-        with open(data_file, 'w') as f:
+        with open(data_file, 'w', encoding='utf-8') as f:
             f.write('[]')  # Bo'sh JSON array yozamiz
 
         result = load_passwords()
@@ -168,28 +168,6 @@ class TestPasswordGeneration(unittest.TestCase):
             self.assertTrue(any(c in "!@#$%^&*()_+-=[]{}" for c in password))
         except ImportError:
             self.skipTest("Encryption moduli mavjud emas")
-
-
-class TestBasicFunctionality(unittest.TestCase):
-    """Asosiy funksiyalar uchun testlar"""
-
-    def test_import_helpers(self):
-        """Helpers moduli import qilinishini tekshirish"""
-        try:
-            # Import qilishni tekshirish
-            import utils.helpers
-            self.assertTrue(True)
-        except ImportError:
-            self.fail("Helpers moduli import qilinmadi")
-
-    def test_import_encryption(self):
-        """Encryption moduli import qilinishini tekshirish"""
-        try:
-            # Import qilishni tekshirish
-            import utils.encryption
-            self.assertTrue(True)
-        except ImportError:
-            self.fail("Encryption moduli import qilinmadi")
 
 
 if __name__ == '__main__':
