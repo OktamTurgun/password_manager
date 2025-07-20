@@ -35,12 +35,12 @@ def generate_password(length=12, use_upper=True, use_lower=True, use_digits=True
     - use_special: maxsus belgilar ishlatilsinmi
 
     Natija:
-    - Uzunligi `length` bo‘lgan, tasodifiy parol
+    - Uzunligi `length` bo'lgan, tasodifiy parol
     """
     if length < 8:
         raise ValueError("Parol uzunligi kamida 8 bo'lishi kerak!")
 
-    # 📌 ishlatiladigan belgilar to‘plamini tuzamiz
+    # 📌 ishlatiladigan belgilar to'plamini tuzamiz
     chars = ''
     if use_upper:
         chars += string.ascii_uppercase
@@ -51,8 +51,10 @@ def generate_password(length=12, use_upper=True, use_lower=True, use_digits=True
     if use_special:
         chars += "!@#$%^&*()_+-=[]{}"
 
-    # 📌 minimal talablarni bajarish uchun har bir toifadan kamida 1 ta belgini oldindan qo‘shib ketamiz
+    # 📌 minimal talablarni bajarish uchun har bir toifadan kamida 1 ta belgini oldindan qo'shib ketamiz
     password = []
+
+    # Har bir toifadan belgi qo'shish
     if use_upper:
         password.append(random.choice(string.ascii_uppercase))
     if use_lower:
@@ -62,7 +64,7 @@ def generate_password(length=12, use_upper=True, use_lower=True, use_digits=True
     if use_special:
         password.append(random.choice("!@#$%^&*()_+-=[]{}"))
 
-    # 📌 qolgan belgilarni to‘ldirish
+    # 📌 qolgan belgilarni to'ldirish
     while len(password) < length:
         password.append(random.choice(chars))
 

@@ -176,7 +176,8 @@ class TestBasicFunctionality(unittest.TestCase):
     def test_import_helpers(self):
         """Helpers moduli import qilinishini tekshirish"""
         try:
-            from utils import helpers
+            # Import qilishni tekshirish
+            import utils.helpers
             self.assertTrue(True)
         except ImportError:
             self.fail("Helpers moduli import qilinmadi")
@@ -184,7 +185,8 @@ class TestBasicFunctionality(unittest.TestCase):
     def test_import_encryption(self):
         """Encryption moduli import qilinishini tekshirish"""
         try:
-            from utils import encryption
+            # Import qilishni tekshirish
+            import utils.encryption
             self.assertTrue(True)
         except ImportError:
             self.fail("Encryption moduli import qilinmadi")

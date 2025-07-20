@@ -131,15 +131,78 @@ def settings_menu():
         else:
             print("⚠️ Log fayli hali yaratilmagan")
     elif choice == "3":
-        print(f"\n📊 DASTUR HAQIDA:")
-        print(f"Nomi: {APP_NAME}")
-        print(f"Versiya: {APP_VERSION}")
-        print(f"Ma'lumotlar papkasi: {DATA_DIR}")
-        print(f"Python versiyasi: {sys.version}")
+        print("\n📊 DASTUR HAQIDA:")
+        print("Nomi: " + APP_NAME)
+        print("Versiya: " + APP_VERSION)
+        print("Ma'lumotlar papkasi: " + str(DATA_DIR))
+        print("Python versiyasi: " + sys.version)
     elif choice == "0":
         return
     else:
         print("❌ Noto'g'ri tanlov!")
+
+
+def handle_password_operations(choice):
+    """Parol operatsiyalarini boshqarish"""
+    if choice == "1":
+        try:
+            add_password()
+            log_action("password_added")
+        except NameError:
+            print("❌ Parol qo'shish funksiyasi mavjud emas")
+    elif choice == "2":
+        try:
+            view_passwords()
+            log_action("passwords_viewed")
+        except NameError:
+            print("❌ Parollarni ko'rish funksiyasi mavjud emas")
+    elif choice == "3":
+        try:
+            delete_password()
+            log_action("password_deleted")
+        except NameError:
+            print("❌ Parolni o'chirish funksiyasi mavjud emas")
+    elif choice == "4":
+        try:
+            update_password()
+            log_action("password_updated")
+        except NameError:
+            print("❌ Parolni yangilash funksiyasi mavjud emas")
+    elif choice == "5":
+        try:
+            search_password()
+            log_action("password_searched")
+        except NameError:
+            print("❌ Parolni qidirish funksiyasi mavjud emas")
+
+
+def handle_menu_choice(choice):
+    """Menyu tanlovini boshqarish"""
+    if choice in ["1", "2", "3", "4", "5"]:
+        handle_password_operations(choice)
+    elif choice == "6":
+        backup_menu()
+    elif choice == "7":
+        filename = input(
+            "Fayl nomi (default: passwords_export.csv): ") or "passwords_export.csv"
+        export_to_csv(filename)
+        log_action("csv_export", filename)
+    elif choice == "8":
+        filename = input("CSV fayl nomi: ")
+        if os.path.exists(filename):
+            import_from_csv(filename)
+            log_action("csv_import", filename)
+        else:
+            print("❌ Fayl topilmadi!")
+    elif choice == "9":
+        settings_menu()
+    elif choice == "0":
+        print("\n👋 Dasturdan chiqildi!")
+        log_action("app_closed")
+        return False
+    else:
+        print("❌ Noto'g'ri tanlov! 0-9 raqamlarini tanlang.")
+    return True
 
 
 def main():
@@ -161,58 +224,8 @@ def main():
             print_menu()
             choice = input("\n🔢 Tanlang (0-9): ")
 
-            if choice == "1":
-                try:
-                    add_password()
-                    log_action("password_added")
-                except NameError:
-                    print("❌ Parol qo'shish funksiyasi mavjud emas")
-            elif choice == "2":
-                try:
-                    view_passwords()
-                    log_action("passwords_viewed")
-                except NameError:
-                    print("❌ Parollarni ko'rish funksiyasi mavjud emas")
-            elif choice == "3":
-                try:
-                    delete_password()
-                    log_action("password_deleted")
-                except NameError:
-                    print("❌ Parolni o'chirish funksiyasi mavjud emas")
-            elif choice == "4":
-                try:
-                    update_password()
-                    log_action("password_updated")
-                except NameError:
-                    print("❌ Parolni yangilash funksiyasi mavjud emas")
-            elif choice == "5":
-                try:
-                    search_password()
-                    log_action("password_searched")
-                except NameError:
-                    print("❌ Parolni qidirish funksiyasi mavjud emas")
-            elif choice == "6":
-                backup_menu()
-            elif choice == "7":
-                filename = input(
-                    "Fayl nomi (default: passwords_export.csv): ") or "passwords_export.csv"
-                export_to_csv(filename)
-                log_action("csv_export", filename)
-            elif choice == "8":
-                filename = input("CSV fayl nomi: ")
-                if os.path.exists(filename):
-                    import_from_csv(filename)
-                    log_action("csv_import", filename)
-                else:
-                    print("❌ Fayl topilmadi!")
-            elif choice == "9":
-                settings_menu()
-            elif choice == "0":
-                print("\n👋 Dasturdan chiqildi!")
-                log_action("app_closed")
+            if not handle_menu_choice(choice):
                 break
-            else:
-                print("❌ Noto'g'ri tanlov! 0-9 raqamlarini tanlang.")
 
         except KeyboardInterrupt:
             print("\n\n⚠️ Dastur to'xtatildi!")
