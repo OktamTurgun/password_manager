@@ -1,13 +1,11 @@
 # 🧪 Helpers funksiyalari uchun testlar
 
 import unittest
-import tempfile
 import os
-import json
-from unittest.mock import patch, mock_open
 import sys
 from pathlib import Path
 import time
+from unittest.mock import patch
 
 # Utils papkasini import qilish uchun
 sys.path.append(str(Path(__file__).parent.parent))
@@ -18,10 +16,6 @@ try:
         load_passwords,
         save_passwords,
         generate_password,
-        add_password,
-        view_passwords,
-        delete_password,
-        update_password,
         search_password
     )
     HELPERS_AVAILABLE = True
@@ -59,7 +53,7 @@ class TestPasswordManager(unittest.TestCase):
                 time.sleep(0.1)
                 try:
                     os.unlink(self.test_file)
-                except:
+                except Exception:
                     pass
 
     def test_generate_password_length(self):

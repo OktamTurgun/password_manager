@@ -118,9 +118,9 @@ def settings_menu():
     if choice == "1":
         try:
             os.startfile(DATA_DIR) if os.name == 'nt' else os.system(
-                f"open {DATA_DIR}")
+                "open " + str(DATA_DIR))
             print("✅ Ma'lumotlar papkasi ochildi")
-        except:
+        except Exception:
             print("❌ Papka ochilmadi")
     elif choice == "2":
         log_file = DATA_DIR / "password_manager.log"
@@ -145,7 +145,7 @@ def settings_menu():
 def main():
     """Asosiy dastur funksiyasi"""
     # Logger'ni o'rnatish
-    logger = setup_logger()
+    setup_logger()
 
     # Ma'lumotlar papkasini yaratish
     DATA_DIR.mkdir(exist_ok=True)

@@ -1,8 +1,6 @@
 # 📝 Logging moduli
 
 import logging
-import os
-from datetime import datetime
 from pathlib import Path
 
 # Konfiguratsiya sozlamalarini olish

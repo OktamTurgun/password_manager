@@ -1,6 +1,5 @@
 # ⚙️ Dastur konfiguratsiyasi
 
-import os
 from pathlib import Path
 
 # 📁 Asosiy papkalar
