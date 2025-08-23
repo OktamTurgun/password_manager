@@ -1,4 +1,3 @@
-
 # �� Password Manager
 
 Minimal, ixcham va professional Python CLI dasturi — parollarni xavfsiz boshqarish uchun.
