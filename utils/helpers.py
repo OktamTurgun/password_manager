@@ -4,6 +4,7 @@ import json
 import os
 import secrets
 import string
+from utils.security import encrypt_password, decrypt_password, encrypt_passwords_list, decrypt_passwords_list
 
 DATA_FILE = "data/passwords.json"
 
@@ -17,15 +18,17 @@ def load_passwords(data_file=DATA_FILE):
         return []
     with open(data_file, 'r', encoding='utf-8') as file:
         try:
-            return json.load(file)
+            encrypted_passwords = json.load(file)
+            return decrypt_passwords_list(encrypted_passwords)
         except Exception:
             return []
 
 
 def save_passwords(passwords, data_file=DATA_FILE):
     os.makedirs(os.path.dirname(data_file), exist_ok=True)
+    encrypted_passwords = encrypt_passwords_list(passwords)
     with open(data_file, 'w', encoding='utf-8') as file:
-        json.dump(passwords, file, indent=4, ensure_ascii=False)
+        json.dump(encrypted_passwords, file, indent=4, ensure_ascii=False)
 
 
 def generate_password(length=12):

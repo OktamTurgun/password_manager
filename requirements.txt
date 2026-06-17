@@ -4,7 +4,7 @@
 # json, os, random, string, base64, hashlib, secrets - standart kutubxonalar, alohida o'rnatish shart emas
 
 # Xavfsizlik uchun qo'shimcha kutubxonalar
-cryptography>=3.4.8  # Kuchli shifrlash uchun
+cryptography>=41.0.0  # Kuchli shifrlash uchun
 
 # Test uchun kutubxonalar
 pytest>=6.2.5

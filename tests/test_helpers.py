@@ -1,6 +1,7 @@
 # 🧪 Helpers funksiyalari uchun testlar
 
 from utils.helpers import generate_password, save_passwords, load_passwords, add_password, view_passwords, delete_password, update_password, search_password
+from utils.security import encrypt_password, decrypt_password, encrypt_passwords_list, decrypt_passwords_list
 from unittest.mock import patch
 import unittest
 import os
@@ -92,6 +93,38 @@ class TestPasswordManager(unittest.TestCase):
             with patch('builtins.print') as mock_print:
                 search_password(data_file=self.TEST_FILE)
                 mock_print.assert_called_with("❌ Xech narsa topilmadi.")
+
+
+class TestEncryption(unittest.TestCase):
+    """Shifrlash funksiyalarini test qilish"""
+    
+    def test_encrypt_decrypt_password(self):
+        password = "MySecurePassword123!"
+        encrypted = encrypt_password(password)
+        self.assertNotEqual(password, encrypted)
+        decrypted = decrypt_password(encrypted)
+        self.assertEqual(password, decrypted)
+    
+    def test_encrypt_empty_password(self):
+        with self.assertRaises(ValueError):
+            encrypt_password("")
+    
+    def test_encrypt_passwords_list(self):
+        passwords = [
+            {"platform": "A", "username": "user1", "password": "pass1"},
+            {"platform": "B", "username": "user2", "password": "pass2"}
+        ]
+        encrypted = encrypt_passwords_list(passwords)
+        self.assertEqual(encrypted[0]['password'], encrypt_password("pass1"))
+        self.assertNotEqual(encrypted[0]['password'], "pass1")
+    
+    def test_decrypt_passwords_list(self):
+        passwords = [
+            {"platform": "A", "username": "user1", "password": "pass1"}
+        ]
+        encrypted = encrypt_passwords_list(passwords)
+        decrypted = decrypt_passwords_list(encrypted)
+        self.assertEqual(decrypted[0]['password'], "pass1")
 
 
 if __name__ == '__main__':
