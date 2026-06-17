@@ -4,6 +4,7 @@ import json
 import os
 import secrets
 import string
+import getpass
 from utils.security import encrypt_password, decrypt_password, encrypt_passwords_list, decrypt_passwords_list
 from utils.validators import (
     validate_platform, validate_username, validate_password,
@@ -14,8 +15,9 @@ from utils.models import PasswordEntry, PasswordDatabase
 DATA_FILE = "data/passwords.json"
 
 
-def safe_input_password(prompt="Parol: "):
-    return input(prompt)
+def get_password_input(prompt: str = "Parol: ") -> str:
+    """Parolni masklaangan holatda qabul qilish (yulduzcha ko'rinadi)"""
+    return getpass.getpass(prompt)
 
 
 def load_passwords(data_file=DATA_FILE):
@@ -75,7 +77,7 @@ def add_password(data_file=DATA_FILE):
         choice = input("Parolni o'zingiz kiritasizmi? (ha/yo'q): ").lower().strip()
         if choice in ['ha', 'h', 'yes', 'y']:
             while True:
-                password = input("Parol: ")
+                password = get_password_input("Parol: ")
                 is_valid, error_msg = validate_password(password)
                 if is_valid:
                     break
@@ -176,7 +178,7 @@ def update_password(data_file=DATA_FILE):
         for p in passwords:
             if p['platform'] == platform and p['username'] == username:
                 while True:
-                    new_password = input("Yangi parol: ")
+                    new_password = get_password_input("Yangi parol: ")
                     is_valid, error_msg = validate_password(new_password)
                     if is_valid:
                         break
