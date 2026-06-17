@@ -5,6 +5,11 @@ import os
 import secrets
 import string
 from utils.security import encrypt_password, decrypt_password, encrypt_passwords_list, decrypt_passwords_list
+from utils.validators import (
+    validate_platform, validate_username, validate_password,
+    validate_password_strength, sanitize_input
+)
+from utils.models import PasswordEntry, PasswordDatabase
 
 DATA_FILE = "data/passwords.json"
 
@@ -41,69 +46,190 @@ def generate_password(length=12):
 
 
 def add_password(data_file=DATA_FILE):
-    passwords = load_passwords(data_file)
-    platform = input("Platforma nomi: ")
-    username = input("Foydalanuvchi ismi: ")
-    choice = input("Parolni o'zingiz kiritasizmi? (ha/yo'q): ").lower()
-    if choice == 'ha':
-        password = safe_input_password("Parol: ")
-    else:
-        password = generate_password()
-        print(f"Avtomatik yaratilgan parol: {password}")
-    passwords.append({
-        "platform": platform,
-        "username": username,
-        "password": password
-    })
-    save_passwords(passwords, data_file)
-    print("✅ Parol muvaffaqiyatli qo'shildi.")
+    try:
+        passwords = load_passwords(data_file)
+        
+        # Platforma nomini olish va validatsiya qilish
+        while True:
+            platform = input("Platforma nomi: ")
+            is_valid, error_msg = validate_platform(platform)
+            if is_valid:
+                break
+            print(f"❌ {error_msg}")
+        
+        # Foydalanuvchi nomini olish va validatsiya qilish
+        while True:
+            username = input("Foydalanuvchi ismi: ")
+            is_valid, error_msg = validate_username(username)
+            if is_valid:
+                break
+            print(f"❌ {error_msg}")
+        
+        # Duplicate tekshirish
+        for p in passwords:
+            if p['platform'] == platform and p['username'] == username:
+                print("❌ Bu platforma va foydalanuvchi kombinatsiyasi allaqachon mavjud!")
+                return
+        
+        # Parol qo'shish usuli
+        choice = input("Parolni o'zingiz kiritasizmi? (ha/yo'q): ").lower().strip()
+        if choice in ['ha', 'h', 'yes', 'y']:
+            while True:
+                password = input("Parol: ")
+                is_valid, error_msg = validate_password(password)
+                if is_valid:
+                    break
+                print(f"❌ {error_msg}")
+            
+            # Parol kuchini ko'rsatish
+            strength, strength_msg = validate_password_strength(password)
+            print(f"Parol kuchi: {strength_msg}")
+        else:
+            password = generate_password()
+            print(f"✅ Avtomatik yaratilgan parol: {password}")
+        
+        # Parolni saqlash
+        passwords.append({
+            "platform": platform,
+            "username": username,
+            "password": password
+        })
+        save_passwords(passwords, data_file)
+        print("✅ Parol muvaffaqiyatli qo'shildi.")
+    except Exception as e:
+        print(f"❌ Xato: {str(e)}")
 
 
 def view_passwords(data_file=DATA_FILE):
-    passwords = load_passwords(data_file)
-    if not passwords:
-        print("⚠️ Xozircha parollar yo'q.")
-        return
-    for p in passwords:
-        print(f"{p['platform']} | {p['username']} | {p['password']}")
+    try:
+        passwords = load_passwords(data_file)
+        if not passwords:
+            print("⚠️  Xozircha parollar yo'q.")
+            return
+        
+        # Jadval shakli bilan ko'rsatish
+        print("\n" + "=" * 80)
+        print(f"{'Platforma':<20} | {'Foydalanuvchi':<25} | {'Parol':<30}")
+        print("=" * 80)
+        
+        for p in passwords:
+            platform = p['platform'][:20]
+            username = p['username'][:25]
+            password = p['password'][:30]
+            print(f"{platform:<20} | {username:<25} | {password:<30}")
+        
+        print("=" * 80 + "\n")
+    except Exception as e:
+        print(f"❌ Xato: {str(e)}")
 
 
 def delete_password(data_file=DATA_FILE):
-    passwords = load_passwords(data_file)
-    platform = input("Platforma: ")
-    username = input("Foydalanuvchi ismi: ")
-    new_passwords = [p for p in passwords if not (
-        p['platform'] == platform and p['username'] == username)]
-    save_passwords(new_passwords, data_file)
-    print("✅ Parol o'chirildi (agar mavjud bo'lsa).")
+    try:
+        passwords = load_passwords(data_file)
+        
+        while True:
+            platform = input("Platforma: ")
+            is_valid, error_msg = validate_platform(platform)
+            if is_valid:
+                break
+            print(f"❌ {error_msg}")
+        
+        while True:
+            username = input("Foydalanuvchi ismi: ")
+            is_valid, error_msg = validate_username(username)
+            if is_valid:
+                break
+            print(f"❌ {error_msg}")
+        
+        initial_count = len(passwords)
+        new_passwords = [p for p in passwords if not (
+            p['platform'] == platform and p['username'] == username)]
+        
+        if len(new_passwords) < initial_count:
+            save_passwords(new_passwords, data_file)
+            print("✅ Parol o'chirildi.")
+        else:
+            print("❌ Parol topilmadi.")
+    except Exception as e:
+        print(f"❌ Xato: {str(e)}")
 
 
 def update_password(data_file=DATA_FILE):
-    passwords = load_passwords(data_file)
-    platform = input("Platforma: ")
-    username = input("Foydalanuvchi ismi: ")
-    updated = False
-    for p in passwords:
-        if p['platform'] == platform and p['username'] == username:
-            p['password'] = safe_input_password("Yangi parol: ")
-            updated = True
-            break
-    save_passwords(passwords, data_file)
-    if updated:
-        print("✅ Parol yangilandi.")
-    else:
-        print("❌ Parol topilmadi.")
+    try:
+        passwords = load_passwords(data_file)
+        
+        while True:
+            platform = input("Platforma: ")
+            is_valid, error_msg = validate_platform(platform)
+            if is_valid:
+                break
+            print(f"❌ {error_msg}")
+        
+        while True:
+            username = input("Foydalanuvchi ismi: ")
+            is_valid, error_msg = validate_username(username)
+            if is_valid:
+                break
+            print(f"❌ {error_msg}")
+        
+        updated = False
+        for p in passwords:
+            if p['platform'] == platform and p['username'] == username:
+                while True:
+                    new_password = input("Yangi parol: ")
+                    is_valid, error_msg = validate_password(new_password)
+                    if is_valid:
+                        break
+                    print(f"❌ {error_msg}")
+                
+                # Parol kuchini ko'rsatish
+                strength, strength_msg = validate_password_strength(new_password)
+                print(f"Parol kuchi: {strength_msg}")
+                
+                p['password'] = new_password
+                updated = True
+                break
+        
+        save_passwords(passwords, data_file)
+        if updated:
+            print("✅ Parol yangilandi.")
+        else:
+            print("❌ Parol topilmadi.")
+    except Exception as e:
+        print(f"❌ Xato: {str(e)}")
 
 
 def search_password(data_file=DATA_FILE):
-    passwords = load_passwords(data_file)
-    keyword = input("Qidirish so'zi (platforma yoki username): ").lower()
-    results = [
-        p for p in passwords
-        if keyword in p['platform'].lower() or keyword in p['username'].lower()
-    ]
-    if not results:
-        print("❌ Xech narsa topilmadi.")
-    else:
+    try:
+        passwords = load_passwords(data_file)
+        keyword = input("Qidirish so'zi (platforma yoki username): ").lower().strip()
+        
+        if not keyword:
+            print("❌ Qidirish so'zi bo'sh bo'lishi mumkin emas!")
+            return []
+        
+        results = [
+            p for p in passwords
+            if keyword in p['platform'].lower() or keyword in p['username'].lower()
+        ]
+        
+        if not results:
+            print("❌ Xech narsa topilmadi.")
+            return []
+        
+        # Jadval shakli bilan ko'rsatish
+        print("\n" + "=" * 80)
+        print(f"{'Platforma':<20} | {'Foydalanuvchi':<25} | {'Parol':<30}")
+        print("=" * 80)
+        
         for p in results:
-            print(f"{p['platform']} | {p['username']} | {p['password']}")
+            platform = p['platform'][:20]
+            username = p['username'][:25]
+            password = p['password'][:30]
+            print(f"{platform:<20} | {username:<25} | {password:<30}")
+        
+        print("=" * 80 + "\n")
+        return results
+    except Exception as e:
+        print(f"❌ Xato: {str(e)}")
+        return []
