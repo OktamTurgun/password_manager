@@ -125,6 +125,12 @@ def view_passwords(data_file=DATA_FILE):
         print(f"❌ Xato: {str(e)}")
 
 
+def confirm_action(message: str = "Siz ishonchli musiz?") -> bool:
+    """Foydalanuvchidan tasdiqlash so'rash"""
+    response = input(f"\n⚠️  {message} (ha/yo'q): ").lower().strip()
+    return response in ['ha', 'h', 'yes', 'y']
+
+
 def delete_password(data_file=DATA_FILE):
     try:
         passwords = load_passwords(data_file)
@@ -142,6 +148,11 @@ def delete_password(data_file=DATA_FILE):
             if is_valid:
                 break
             print(f"❌ {error_msg}")
+        
+        # O'chirish uchun confirmation so'rash
+        if not confirm_action(f"'{platform}' | '{username}' parolini o'chirib tashlamoqchisiz?"):
+            print("❌ Amal bekor qilindi.")
+            return
         
         initial_count = len(passwords)
         new_passwords = [p for p in passwords if not (
@@ -187,6 +198,11 @@ def update_password(data_file=DATA_FILE):
                 # Parol kuchini ko'rsatish
                 strength, strength_msg = validate_password_strength(new_password)
                 print(f"Parol kuchi: {strength_msg}")
+                
+                # Yangilash uchun confirmation so'rash
+                if not confirm_action("Parolni yangilashga rozisizmi?"):
+                    print("❌ Amal bekor qilindi.")
+                    return
                 
                 p['password'] = new_password
                 updated = True
